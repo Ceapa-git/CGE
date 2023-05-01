@@ -12,6 +12,8 @@ namespace data
         this->header.total_size = 0;
         this->header.chunk_count = 0;
         this->auto_save_stop = false;
+        this->auto_save_interval = std::chrono::seconds(10);
+        this->auto_save_modified = false;
         this->auto_save_thread = std::thread(&Data_file::auto_save_fun, this);
         std::unique_lock<std::mutex> lock(this->auto_save_mutex);
         this->auto_save_cond.wait(lock);
@@ -31,6 +33,8 @@ namespace data
         this->chunks.emplace_back(std::make_unique<Data_chunk>())->set_content(size, content);
         this->header.chunk_count++;
         this->header.total_size += (size + sizeof(int));
+        std::unique_lock<std::mutex> lock_auto_save(this->auto_save_mutex);
+        this->auto_save_modified = true;
         return this->chunks.size() - 1;
     }
     void Data_file::get(int index, int &size, const char *&content)
@@ -47,6 +51,8 @@ namespace data
         this->header.total_size -= old_size;
         this->chunks.at(index)->set_content(size, content);
         this->header.total_size += size;
+        std::unique_lock<std::mutex> lock_auto_save(this->auto_save_mutex);
+        this->auto_save_modified = true;
     }
 
     void Data_file::save(const char *filename)
@@ -81,9 +87,17 @@ namespace data
         {
             this->auto_save_filename = std::make_unique<char[]>(strlen(filename) + 1);
             strcpy(this->auto_save_filename.get(), filename);
+            this->auto_save_modified = true;
         }
         else
             this->auto_save_filename.reset();
+    }
+    void Data_file::set_auto_save_interval(std::chrono::seconds interval)
+    {
+        std::unique_lock<std::mutex> lock(this->auto_save_mutex);
+        this->auto_save_interval = interval;
+        this->auto_save_modified = true;
+        this->auto_save_cond.notify_all();
     }
 
     void Data_file::auto_save_fun()
@@ -92,12 +106,13 @@ namespace data
         this->auto_save_cond.notify_all();
         do
         {
-            this->auto_save_cond.wait_for(lock, std::chrono::seconds(10));
-            if (this->auto_save)
+            this->auto_save_cond.wait_for(lock, this->auto_save_interval);
+            if (this->auto_save && this->auto_save_modified)
             {
                 if (!this->auto_save_stop)
                     std::cout << "AUTO SAVING\n";
                 this->save(this->auto_save_filename.get());
+                this->auto_save_modified = false;
             }
         } while (!this->auto_save_stop);
     }

@@ -31,6 +31,8 @@ namespace data
         bool get_auto_save();
         void set_auto_save(bool state, const char *filename);
 
+        void set_auto_save_interval(std::chrono::seconds interval);
+
     private:
         void auto_save_fun();
 
@@ -44,6 +46,8 @@ namespace data
         bool auto_save;
         std::unique_ptr<char[]> auto_save_filename;
         bool auto_save_stop;
+        std::chrono::seconds auto_save_interval;
+        bool auto_save_modified;
     };
 }
 

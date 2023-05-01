@@ -13,3 +13,6 @@ obj/
 
 # executable files
 *.exe
+
+# workspace
+*.code-workspace
