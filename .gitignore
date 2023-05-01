@@ -1,0 +1,15 @@
+# makefiles
+Makefile
+
+# objects
+obj/
+*.o
+
+# vscode folders
+.vscode/
+
+# bin files
+*.bin
+
+# executable files
+*.exe
