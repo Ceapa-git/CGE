@@ -1,13 +1,14 @@
 #include "pch.h"
 #include "logger.h"
 
-namespace cge::data
+namespace cge::log
 {
-    Logger::Logger(const char *filename, bool append)
+    Logger::Logger(const char *filename, int min_level, bool clear)
     {
         this->filename = std::make_unique<char[]>(strlen(filename) + 1);
+        this->min_level = min_level;
         strcpy(this->filename.get(), filename);
-        if (strcmp(this->filename.get(), "console") != 0 && !append)
+        if (strcmp(this->filename.get(), "console") != 0 && clear)
         {
             std::ofstream clear_file;
             clear_file.open(this->filename.get(), std::ios::trunc);
@@ -17,7 +18,8 @@ namespace cge::data
 
     void Logger::log(const char *message, int log_level)
     {
-
+        if (log_level < this->min_level && log_level >= 0)
+            return;
         if (strcmp(this->filename.get(), "console") == 0)
         {
             bool ok;
