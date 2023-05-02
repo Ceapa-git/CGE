@@ -1,8 +1,9 @@
 #ifndef __DATACHUNK__H__
 #define __DATACHUNK__H__
+
 #include "pch.h"
 
-namespace data
+namespace cge::data
 {
     typedef struct
     {

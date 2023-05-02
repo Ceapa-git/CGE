@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "datachunk.h"
 
-namespace data
+namespace cge::data
 {
     Data_chunk::Data_chunk()
     {

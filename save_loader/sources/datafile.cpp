@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "datafile.h"
 
-namespace data
+namespace cge::data
 {
     Data_file::Data_file()
     {
