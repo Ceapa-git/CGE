@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <chrono>
+#include "pch.h"
 #include "datafile.h"
 
 namespace data
@@ -109,8 +106,6 @@ namespace data
             this->auto_save_cond.wait_for(lock, this->auto_save_interval);
             if (this->auto_save && this->auto_save_modified)
             {
-                if (!this->auto_save_stop)
-                    std::cout << "AUTO SAVING\n";
                 this->save(this->auto_save_filename.get());
                 this->auto_save_modified = false;
             }

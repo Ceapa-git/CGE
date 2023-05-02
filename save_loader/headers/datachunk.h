@@ -1,8 +1,6 @@
 #ifndef __DATACHUNK__H__
 #define __DATACHUNK__H__
-#include <memory>
-#include <iostream>
-#include <fstream>
+#include "pch.h"
 
 namespace data
 {

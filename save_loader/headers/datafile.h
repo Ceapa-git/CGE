@@ -1,10 +1,6 @@
 #ifndef __DATAFILE__H__
 #define __DATAFILE__H__
-#include <vector>
-#include <memory>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "pch.h"
 #include "datachunk.h"
 
 namespace data
