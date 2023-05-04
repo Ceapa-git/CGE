@@ -3,9 +3,16 @@
 
 int main()
 {
-    cge::log::Logger logger("console", LOG_WARNING);
-    for (int i = 0; i < 10; i++)
     {
+        cge::log::Logger logger("console");
+        int level;
+        char message[] = "level 0";
+        std::cin >> level;
+        message[6] += level;
+        logger.log(message, level);
+    }
+    {
+        cge::log::Logger logger("console", false);
         int level;
         char message[] = "level 0";
         std::cin >> level;

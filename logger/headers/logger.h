@@ -12,7 +12,7 @@ namespace cge::log
     class Logger
     {
     public:
-        Logger(const char *filename, int min_level = LOG_INFO, bool clear = false);
+        Logger(const char *filename, bool timestamp = true, int min_level = LOG_INFO, bool clear = false);
         Logger() : Logger("console"){};
         ~Logger(){};
         void log(const char *message, int log_level = LOG_INFO);
@@ -20,6 +20,7 @@ namespace cge::log
     private:
         std::unique_ptr<char[]> filename;
         int min_level;
+        bool timestamp;
     };
 }
 
