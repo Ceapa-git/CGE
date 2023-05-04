@@ -9,6 +9,10 @@ namespace cge::data
     typedef struct
     {
     public:
+        uint8_t magic;
+        uint8_t padding;
+        uint8_t v_major;
+        uint8_t v_minor;
         int total_size;
         int chunk_count;
     } data_file_header;
@@ -17,6 +21,11 @@ namespace cge::data
     public:
         Data_file();
         ~Data_file();
+
+        bool is_valid() const;
+        int get_count() const;
+        int get_major() const;
+        int get_minor() const;
 
         int add(const int size, const char *content); // index of the newly added content
         void get(int index, int &size, const char *&content);

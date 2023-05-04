@@ -6,6 +6,10 @@ namespace cge::data
     Data_file::Data_file()
     {
         this->auto_save = false;
+        this->header.magic = 0xDf;
+        this->header.padding = 0;
+        this->header.v_major = 1;
+        this->header.v_minor = 0;
         this->header.total_size = 0;
         this->header.chunk_count = 0;
         this->auto_save_stop = false;
@@ -22,6 +26,23 @@ namespace cge::data
         lock.unlock();
         this->auto_save_cond.notify_all();
         this->auto_save_thread.join();
+    }
+
+    bool Data_file::is_valid() const
+    {
+        return (this->header.magic == 0xDf && this->header.padding == 0);
+    }
+    int Data_file::get_count() const
+    {
+        return this->header.chunk_count;
+    }
+    int Data_file::get_major() const
+    {
+        return this->header.v_major;
+    }
+    int Data_file::get_minor() const
+    {
+        return this->header.v_minor;
     }
 
     int Data_file::add(const int size, const char *content)
@@ -56,6 +77,11 @@ namespace cge::data
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
         std::ofstream save_file(filename, std::ios::binary);
+        save_file.write(reinterpret_cast<const char *>(&(this->header.magic)), 1);
+        save_file.write(reinterpret_cast<const char *>(&(this->header.padding)), 1);
+        save_file.write(reinterpret_cast<const char *>(&(this->header.v_major)), 1);
+        save_file.write(reinterpret_cast<const char *>(&(this->header.v_minor)), 1);
+
         save_file.write(reinterpret_cast<const char *>(&(this->header.total_size)), sizeof(int));
         save_file.write(reinterpret_cast<const char *>(&(this->header.chunk_count)), sizeof(int));
         for (auto &chunk : this->chunks)
@@ -66,10 +92,49 @@ namespace cge::data
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
         std::ifstream save_file(filename, std::ios::binary);
+
+        this->header.total_size = 0;
+        this->header.chunk_count = 0;
+        if (!save_file)
+            return;
+        if (save_file.peek() == std::ifstream::traits_type::eof())
+            return;
+
+        save_file.read(reinterpret_cast<char *>(&(this->header.magic)), 1);
+        save_file.read(reinterpret_cast<char *>(&(this->header.padding)), 1);
+        save_file.read(reinterpret_cast<char *>(&(this->header.v_major)), 1);
+        save_file.read(reinterpret_cast<char *>(&(this->header.v_minor)), 1);
+        if (this->header.magic != 0xDf || this->header.padding != 0)
+        {
+            this->header.magic = 0;
+            this->header.padding = 0;
+            this->header.v_major = 0;
+            this->header.v_minor = 0;
+            save_file.close();
+            return;
+        }
+
         save_file.read(reinterpret_cast<char *>(&(this->header.total_size)), sizeof(int));
         save_file.read(reinterpret_cast<char *>(&(this->header.chunk_count)), sizeof(int));
         for (int i = 0; i < this->header.chunk_count; i++)
+        {
+            if (save_file.eof())
+            {
+                this->header.magic = 0;
+                this->header.padding = 0;
+                this->header.v_major = 0;
+                this->header.v_minor = 0;
+                this->header.total_size = 0;
+                this->header.chunk_count = 0;
+
+                while (!this->chunks.empty())
+                    this->chunks.pop_back();
+                save_file.close();
+                return;
+            }
             this->chunks.emplace_back(std::make_unique<Data_chunk>())->load(save_file);
+        }
+        save_file.close();
     }
 
     bool Data_file::get_auto_save()
