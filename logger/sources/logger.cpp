@@ -93,4 +93,49 @@ namespace cge::log
             file.close();
         }
     }
+    void Logger::log_f(const char *format, const log_arg *args, int log_level)
+    {
+        char message[strlen(format) * 10] = {};
+        int i = 0, j = 0, arg_i = 0;
+        while (format[i])
+        {
+            if (format[i] == '%')
+            {
+                switch (format[++i])
+                {
+                case 'd':
+                    j += sprintf(message + j, "%d", args[arg_i++].v_int);
+                    break;
+                case 'c':
+                    j += sprintf(message + j, "%s", args[arg_i++].v_charp);
+                    break;
+                case 'u':
+                    switch (format[++i])
+                    {
+                    case 'd':
+                        j += sprintf(message + j, "%u", args[arg_i++].v_uint);
+                        break;
+                    case 'c':
+                        j += sprintf(message + j, "%s", (char *)args[arg_i++].v_ucharp);
+                        break;
+                    default:
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+            else
+                message[j++] = format[i];
+            i++;
+        }
+        this->log(message, log_level);
+    }
+
+    void Logger::set_min_level(int min_level)
+    {
+        if (min_level >= 0 && min_level <= LOG_MAXLEVEL)
+            this->min_level = min_level;
+    }
 }

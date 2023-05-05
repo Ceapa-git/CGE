@@ -19,5 +19,13 @@ int main()
         message[6] += level;
         logger.log(message, level);
     }
+    {
+        cge::log::Logger logger("console", false);
+        int level;
+        std::cin >> level;
+        cge::log::log_arg args;
+        args.v_int = level;
+        logger.log_f("level %d", &args, LOG_ERROR);
+    }
     return 0;
 }
