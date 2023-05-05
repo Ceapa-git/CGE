@@ -76,7 +76,7 @@ namespace cge::data
     void Data_file::save(const char *filename)
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
-        std::ofstream save_file(filename, std::ios::binary);
+        std::ofstream save_file(filename, std::ios::binary | std::ios::trunc);
         save_file.write(reinterpret_cast<const char *>(&(this->header.magic)), 1);
         save_file.write(reinterpret_cast<const char *>(&(this->header.padding)), 1);
         save_file.write(reinterpret_cast<const char *>(&(this->header.v_major)), 1);
