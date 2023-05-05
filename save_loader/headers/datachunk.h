@@ -16,15 +16,15 @@ namespace cge::data
         Data_chunk();
         ~Data_chunk(){};
 
-        void set_content(int size, const char *content);
-        void get_content(int &size, const char *&content) const;
+        void set_content(int size, const unsigned char *content);
+        void get_content(int &size, const unsigned char *&content) const;
 
         void save(std::ofstream &save_file);
         void load(std::ifstream &save_file);
 
     private:
         data_chunk_header header;
-        std::unique_ptr<char[]> content;
+        std::unique_ptr<unsigned char[]> content;
     };
 }
 

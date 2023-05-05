@@ -27,9 +27,9 @@ namespace cge::data
         int get_major() const;
         int get_minor() const;
 
-        int add(const int size, const char *content); // index of the newly added content
-        void get(int index, int &size, const char *&content);
-        void set(int index, int size, const char *content);
+        int add(const int size, const unsigned char *content); // index of the newly added content
+        void get(int index, int &size, const unsigned char *&content);
+        void set(int index, int size, const unsigned char *content);
 
         void save(const char *filename);
         void load(const char *filename);

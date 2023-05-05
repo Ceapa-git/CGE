@@ -45,7 +45,7 @@ namespace cge::data
         return this->header.v_minor;
     }
 
-    int Data_file::add(const int size, const char *content)
+    int Data_file::add(const int size, const unsigned char *content)
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
         this->chunks.emplace_back(std::make_unique<Data_chunk>())->set_content(size, content);
@@ -55,16 +55,16 @@ namespace cge::data
         this->auto_save_modified = true;
         return this->chunks.size() - 1;
     }
-    void Data_file::get(int index, int &size, const char *&content)
+    void Data_file::get(int index, int &size, const unsigned char *&content)
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
         this->chunks.at(index)->get_content(size, content);
     }
-    void Data_file::set(int index, int size, const char *content)
+    void Data_file::set(int index, int size, const unsigned char *content)
     {
         std::unique_lock<std::mutex> lock(this->data_mutex);
         int old_size;
-        const char *ignored;
+        const unsigned char *ignored;
         this->chunks.at(index)->get_content(old_size, ignored);
         this->header.total_size -= old_size;
         this->chunks.at(index)->set_content(size, content);
